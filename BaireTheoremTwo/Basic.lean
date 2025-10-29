@@ -56,7 +56,6 @@ theorem dense_set_intersect_open_nonempty (U : Set Y) (V : Set Y)
 
 
 
-
 theorem dense_cM_iInter_of_isOpen_nat {f : ℕ → Set Y} (ho : ∀ n, IsOpen (f n))
     (hd : ∀ n, Dense (f n)) : Dense (⋂ n, f n) :=
     -- From topology without tears
