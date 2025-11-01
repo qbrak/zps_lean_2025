@@ -23,9 +23,6 @@ Potentially could simplified with Dense.exists_mem_open which is:
   (hs : Dense s) {U : Set X} (ho : IsOpen U) (hne : U.Nonempty) : ∃ x ∈ s, x ∈ U
 -/
 
-#check X
-#check Y
-
 theorem dense_set_intersect_open_nonempty {U : Set X} {V : Set X}
      (hU : IsOpen U) (hne : U.Nonempty) (hd : Dense V) :
     (U ∩ V).Nonempty := by
