@@ -24,6 +24,7 @@ Potentially could simplified with Dense.exists_mem_open which is:
 -/
 
 #check X
+#check Y
 
 theorem dense_set_intersect_open_nonempty {U : Set X} {V : Set X}
      (hU : IsOpen U) (hne : U.Nonempty) (hd : Dense V) :
