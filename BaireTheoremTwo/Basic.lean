@@ -61,22 +61,38 @@ theorem dense_set_intersect_open_nonempty {U : Set X} {V : Set X}
 
   contradiction
 
+theorem dense_set_intersect_open_nonempty_v2 {U : Set X} {V : Set X}
+     (hU : IsOpen U) (hne : U.Nonempty) (hd : Dense V) :
+    (U ∩ V).Nonempty := by
+    sorry
+  -- rw [Set.nonempty_def]
+  -- rw [Set.mem_inter_iff x U V]
+  -- rw [Dense.exists_mem_open hd hU hne] at hne
+
+
 theorem set_dense_iff_intersect_open_nonempty {s : Set X} :
     Dense s ↔ ∀ (U : Set X), IsOpen U → U.Nonempty → (U ∩ s).Nonempty := by
   exact dense_iff_inter_open
 
-theorem exist_open_ball_smaller_radius_subset {X : Set Y} {r : ℝ} (hr : 0 < r) (U : Set Y)
+lemma exist_open_ball_smaller_radius_subset {X : Set Y} {r : ℝ} (hr : 0 < r) (U : Set Y)
     (hUopen : IsOpen U) (hXOpen : IsOpen X) (hXDense : Dense X) :
-    ∃ (x : Y) (r2 : ℝ), r2 > 0 ∧ (Metric.ball x r2 ⊆ U ∩ X) ∧ r2 < r := by
+    ∃ (x : Y) (r2 : ℝ), r2 > 0 ∧ (Metric.closedBall x r2 ⊆ U ∩ X) ∧ r2 < r := by
   sorry
 
-
-theorem dense_cM_iInter_of_isOpen_nat {f : ℕ → Set Y} (ho : ∀ n, IsOpen (f n))
+theorem complete_metric_has_baire_property {f : ℕ → Set Y} (ho : ∀ n, IsOpen (f n))
     (hd : ∀ n, Dense (f n)) : Dense (⋂ n, f n) :=
     -- From topology without tears
     by
-    intro U hUopen hUne
+    rw [dense_iff_inter_open]
+    intro U hUopen hUnempty
+    --- construct a Cauchy sequence by taking nested balls
+    --- then use completeness to get a limit point in the intersection
     sorry
+
+theorem open_mapping_theorem {f : X → Y} (hf : Continuous f) (hopen : ∀ U : Set X, IsOpen U → IsOpen (f '' U))
+    (h_surj : Surjective f) : OpenMap f := by
+
+  sorry
 
 theorem dense_iInter_of_isOpen_nat {f : ℕ → Set X} (ho : ∀ n, IsOpen (f n))
     (hd : ∀ n, Dense (f n)) : Dense (⋂ n, f n) :=
