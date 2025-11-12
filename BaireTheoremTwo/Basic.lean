@@ -96,11 +96,7 @@ lemma exist_open_ball_smaller_radius_subset {P : Set Y} {r : ℝ} (hr : 0 < r) (
     apply Subset.trans (Metric.ball_subset_ball (min_le_left g1 (r / 2))) hg2
     exact min_lt_of_right_lt (half_lt_self hr)
 
-
-
-   -- theorem isOpen_iff : IsOpen s ↔ ∀ x ∈ s, ∃ ε > 0, ball x ε ⊆ s := by
- -- simp only [isOpen_iff_mem_nhds, mem_nhds_iff]
-
+  -- jupiiiii
 
 
 
@@ -108,7 +104,7 @@ lemma exist_open_ball_smaller_radius_subset {P : Set Y} {r : ℝ} (hr : 0 < r) (
 
 theorem complete_metric_has_baire_property {f : ℕ → Set Y} (ho : ∀ n, IsOpen (f n))
     (hd : ∀ n, Dense (f n)) : Dense (⋂ n, f n) :=
-    -- From topology without tears
+
     by
     rw [dense_iff_inter_open]
     intro U hUopen hUnempty
