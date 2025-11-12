@@ -4,6 +4,9 @@ import Mathlib.Topology.Basic
 import Mathlib.Order.BooleanAlgebra.Basic
 import Mathlib.Topology.Closure
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Mathlib.Order.RelClasses
+import Mathlib.Analysis.Normed.Operator.Banach
+
 
 set_option linter.style.longLine false
 noncomputable section
@@ -11,7 +14,7 @@ noncomputable section
 open scoped Topology
 open Filter Set TopologicalSpace
 
-variable {X Y α : Type*} {ι : Sort*}
+variable {X Y α B B1 : Type*} {ι : Sort*}
 
 section BaireTheoremTwo
 
@@ -29,7 +32,7 @@ theorem dense_set_intersect_open_nonempty {U : Set X} {V : Set X}
     (U ∩ V).Nonempty := by
   by_contra h_empty
 
-  have UsubVc: U ⊆ Vᶜ := by
+  have UsubVc : U ⊆ Vᶜ := by
     rw [Set.subset_def]
     intro x hxU hxV
     have xin_inter : x ∈ U ∩ V := Set.mem_inter hxU hxV
@@ -115,12 +118,95 @@ theorem complete_metric_has_baire_property {f : ℕ → Set Y} (ho : ∀ n, IsOp
     --- then use completeness to get a limit point in the intersection
     sorry
 
-theorem open_mapping_theorem {f : X → Y} (hf : Continuous f) (hopen : ∀ U : Set X, IsOpen U → IsOpen (f '' U))
-    (h_surj : Surjective f) : OpenMap f := by
+def NowhereDense (s : Set X) : Prop :=
+  interior (closure s) = ∅
 
-  sorry
+theorem sum_sets_atleast_one_not_nowhere_dense {f : ℕ → Set Y} [Nonempty Y]
+   (hUnion : ⋃ n, f n = univ) :
+    ∃ n, ¬ NowhereDense (f n) := by
+  by_contra h_contra
+  push_neg at h_contra
+  have compl_closure_open : ∀ n, IsOpen (closure (f n))ᶜ := by
+    simp
+  have compl_closure_dense : ∀ n, Dense (closure (f n))ᶜ := by
+    intro n
+    rw [dense_iff_inter_open]
+    intro U hUopen hUnempty
+    by_contra hcontraEmpty
+    push_neg at hcontraEmpty
+    have hcontraFull : (U ∩ (closure (f n))ᶜ)ᶜ = (∅)ᶜ := by
+      simp
+      exact hcontraEmpty
+    rw [Set.compl_inter] at hcontraFull
+    rw [Set.compl_empty] at hcontraFull
+    rw [compl_compl] at hcontraFull
 
-theorem dense_iInter_of_isOpen_nat {f : ℕ → Set X} (ho : ∀ n, IsOpen (f n))
+    have hUcClosed : IsClosed Uᶜ := by
+      have hUccOpen : IsOpen Uᶜᶜ := by
+        rw [compl_compl]
+        exact hUopen
+      exact isOpen_compl_iff.mp hUccOpen
+
+    have hlessThanSpace : interior (closure (f n) ∪ Uᶜ) ⊆  Uᶜ := by
+      have hlessThanUc : interior (closure (f n) ∪ Uᶜ) ⊆ interior (closure (f n)) ∪ Uᶜ:= by
+        exact  IsClosed.interior_union_right hUcClosed
+      rw [h_contra n] at hlessThanUc
+      rw [Set.empty_union] at hlessThanUc
+      exact hlessThanUc
+
+    have hUc_ne_univ : Uᶜ ≠ univ := by
+      rw [Set.compl_ne_univ]
+      exact hUnempty
+    have hUc_sub_univ : Uᶜ ⊂ univ := by
+      exact Set.ssubset_univ_iff.mpr hUc_ne_univ
+    rw [Set.union_comm] at hcontraFull
+
+    have intNotUniv : interior (closure (f n) ∪ Uᶜ) ⊂ univ := by
+      exact ssubset_of_subset_of_ssubset hlessThanSpace hUc_sub_univ
+    have intNotUnivNeq : interior (closure (f n) ∪ Uᶜ) ≠ univ := by
+      exact Set.ssubset_univ_iff.mp intNotUniv
+    have intEqUniv : interior (closure (f n) ∪ Uᶜ) = interior (univ) := by
+      simpa
+
+    rw [interior_univ] at intEqUniv
+    contradiction
+
+  have compl_closure_inter_dense : Dense (⋂ n, (closure (f n))ᶜ) := by
+    exact complete_metric_has_baire_property compl_closure_open compl_closure_dense
+  have compl_closure_inter_eq : (⋂ n, (closure (f n))ᶜ) = (⋃ n, closure (f n))ᶜ := by
+    simp
+  rw [compl_closure_inter_eq] at compl_closure_inter_dense
+  have int_eq_empty : interior (⋃ n, (closure (f n))) = ∅ := by
+    exact interior_eq_empty_iff_dense_compl.mpr compl_closure_inter_dense
+
+  have union_closure_eq_space : (⋃ n, closure (f n)) = univ := by
+    have union_closure_sub_univ : (⋃ n, closure (f n)) ⊆ univ := by
+      simp
+    have univ_sub_union_closure : univ ⊆ (⋃ n, closure (f n)) := by
+      have univ_sub_union : univ ⊆ (⋃ n, f n) := by
+        exact Set.univ_subset_iff.mpr hUnion
+      have union_sub_union_closure : (⋃ n, f n) ⊆ (⋃ n, closure (f n)) := by
+        simp
+        have f_in_closure : ∀ n, f n ⊆ closure (f n) := by
+          simp [subset_closure]
+
+        intro n
+        have closure_sub : closure (f n) ⊆ (⋃ n, closure (f n)) := by
+          have set_same_subset : closure (f n) ⊆ (closure (f n)) := by
+            simp
+          exact Set.subset_iUnion_of_subset n set_same_subset
+        exact subset_trans (f_in_closure n) closure_sub
+      exact subset_trans univ_sub_union union_sub_union_closure
+
+    -- The ⟨a,b⟩ means (a and b)
+    exact Set.Subset.antisymm_iff.mpr ⟨union_closure_sub_univ, univ_sub_union_closure⟩
+
+  rw [union_closure_eq_space] at int_eq_empty
+  rw [interior_univ] at int_eq_empty
+  simp_all
+
+
+theorem dense_iInter_of_isOpen_nat_v2 {f : ℕ → Set X} (ho : ∀ n, IsOpen (f n))
     (hd : ∀ n, Dense (f n)) : Dense (⋂ n, f n) :=
   BaireSpace.baire_property f ho hd
 
