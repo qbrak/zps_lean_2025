@@ -15,8 +15,8 @@ variable {X Y α : Type*} {ι : Sort*}
 section BaireTheoremTwo
 
 variable [TopologicalSpace X] [BaireSpace X]
-variable [TopologicalSpace Y] [MetricSpace Y] [CompleteSpace Y]
-
+variable [MetricSpace Y] [CompleteSpace Y]
+--variable [MetricSpace Z]
 
 /--
 Potentially could simplified with Dense.exists_mem_open which is:
@@ -70,14 +70,41 @@ theorem dense_set_intersect_open_nonempty_v2 {U : Set X} {V : Set X}
   -- rw [Dense.exists_mem_open hd hU hne] at hne
 
 
-theorem set_dense_iff_intersect_open_nonempty {s : Set X} :
-    Dense s ↔ ∀ (U : Set X), IsOpen U → U.Nonempty → (U ∩ s).Nonempty := by
+theorem set_dense_iff_intersect_open_nonempty {s : Set Y} :
+    Dense s ↔ ∀ (U : Set Y), IsOpen U → U.Nonempty → (U ∩ s).Nonempty := by
   exact dense_iff_inter_open
 
-lemma exist_open_ball_smaller_radius_subset {X : Set Y} {r : ℝ} (hr : 0 < r) (U : Set Y)
-    (hUopen : IsOpen U) (hXOpen : IsOpen X) (hXDense : Dense X) :
-    ∃ (x : Y) (r2 : ℝ), r2 > 0 ∧ (Metric.closedBall x r2 ⊆ U ∩ X) ∧ r2 < r := by
-  sorry
+lemma exist_open_ball_smaller_radius_subset {P : Set Y} {r : ℝ} (hr : 0 < r) (U : Set Y)
+    (hUopen : IsOpen U) (hUne : U.Nonempty) (hPOpen : IsOpen P) (hPDense : Dense P) :
+    ∃ (x : Y) (r2 : ℝ), r2 > 0 ∧ (Metric.ball x r2 ⊆ U ∩ P) ∧ r2 < r := by
+    have h_inter_nonempty : (U ∩ P).Nonempty := by
+      exact set_dense_iff_intersect_open_nonempty.mp hPDense U hUopen hUne
+    have open_inter : IsOpen (U ∩ P) := by
+      apply IsOpen.inter hUopen hPOpen
+    rw [nonempty_def] at h_inter_nonempty
+    have exists_any_ball : ∃ (f : Y) (g: ℝ), f ∈ U ∩ P ∧ g > 0 ∧ Metric.ball f g ⊆ U ∩ P := by
+      rcases h_inter_nonempty with ⟨x0, hx0⟩
+      use x0
+      rcases Metric.isOpen_iff.mp open_inter x0 hx0 with ⟨ε, hε_pos, h_ball_subset⟩
+      use ε
+    rcases exists_any_ball with ⟨x0, g1, hx0, hg1, hg2⟩
+    use x0
+    use min g1 (r / 2)
+    constructor
+    apply lt_min hg1 (half_pos hr)
+    constructor
+    apply Subset.trans (Metric.ball_subset_ball (min_le_left g1 (r / 2))) hg2
+    exact min_lt_of_right_lt (half_lt_self hr)
+
+
+
+   -- theorem isOpen_iff : IsOpen s ↔ ∀ x ∈ s, ∃ ε > 0, ball x ε ⊆ s := by
+ -- simp only [isOpen_iff_mem_nhds, mem_nhds_iff]
+
+
+
+
+
 
 theorem complete_metric_has_baire_property {f : ℕ → Set Y} (ho : ∀ n, IsOpen (f n))
     (hd : ∀ n, Dense (f n)) : Dense (⋂ n, f n) :=
