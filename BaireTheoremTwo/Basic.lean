@@ -1,11 +1,10 @@
 import Mathlib.Topology.GDelta.Basic
 import Mathlib.Topology.MetricSpace.Basic
 import Mathlib.Topology.Basic
-import Mathlib.Order.BooleanAlgebra.Basic
+
 import Mathlib.Topology.Closure
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Mathlib.Order.RelClasses
-import Mathlib.Analysis.Normed.Operator.Banach
+
 
 
 set_option linter.style.longLine false
@@ -86,7 +85,8 @@ lemma exist_open_ball_smaller_radius_subset {P : Set Y} {r : ℝ} (hr : 0 < r) (
     have open_inter : IsOpen (U ∩ P) := by
       apply IsOpen.inter hUopen hPOpen
     rw [nonempty_def] at h_inter_nonempty
-    have exists_any_ball : ∃ (f : Y) (g: ℝ), f ∈ U ∩ P ∧ g > 0 ∧ Metric.ball f g ⊆ U ∩ P := by
+    have exists_any_ball : ∃ (f : Y) (g: ℝ), f ∈ U ∩ P ∧ g > 0
+    ∧ Metric.ball f g ⊆ U ∩ P := by
       rcases h_inter_nonempty with ⟨x0, hx0⟩
       use x0
       rcases Metric.isOpen_iff.mp open_inter x0 hx0 with ⟨ε, hε_pos, h_ball_subset⟩
@@ -97,7 +97,8 @@ lemma exist_open_ball_smaller_radius_subset {P : Set Y} {r : ℝ} (hr : 0 < r) (
     constructor
     · apply lt_min (half_pos hg1) (half_pos hr)
     · constructor
-      · apply Subset.trans (Metric.closedBall_subset_ball (lt_of_le_of_lt (min_le_left (g1/2) (r/2)) (half_lt_self (hg1)))) hg2
+      · apply Subset.trans (Metric.closedBall_subset_ball
+      (lt_of_le_of_lt (min_le_left (g1/2) (r/2)) (half_lt_self (hg1)))) hg2
       · exact min_lt_of_right_lt (half_lt_self hr)
 
 
