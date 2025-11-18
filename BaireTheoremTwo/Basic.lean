@@ -2,6 +2,7 @@ import Mathlib.Topology.GDelta.Basic
 import Mathlib.Topology.MetricSpace.Basic
 import Mathlib.Topology.Basic
 
+import Mathlib.Topology.Sequences
 import Mathlib.Topology.Closure
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
 import Mathlib.Topology.Metrizable.CompletelyMetrizable
@@ -25,7 +26,6 @@ variable [MetricSpace Y] [CompleteSpace Y] [IsCompletelyMetrizableSpace X]
 Potentially could simplified with Dense.exists_mem_open which is:
   (hs : Dense s) {U : Set X} (ho : IsOpen U) (hne : U.Nonempty) : ∃ x ∈ s, x ∈ U
 -/
-
 theorem dense_set_intersect_open_nonempty {U : Set X} {V : Set X}
      (hU : IsOpen U) (hne : U.Nonempty) (hd : Dense V) :
     (U ∩ V).Nonempty := by
@@ -109,17 +109,105 @@ lemma exists_nested_balls_sequence {W: Set Y} {U: ℕ → Set Y}
 
   sorry
 
+/--
+The primary form of the Baire Category Theorem:
+  The countable intersection of dense open sets in a complete metric space is dense.
+-/
 theorem complete_metric_has_baire_property {f : ℕ → Set Y} (ho : ∀ n, IsOpen (f n))
-    (hd : ∀ n, Dense (f n)) : Dense (⋂ n, f n) :=
+    (hd : ∀ n, Dense (f n))
+    : Dense (⋂ n, f n) := by
 
-    by
     rw [dense_iff_inter_open]
     intro U hUopen hUnempty
-    --- construct a Cauchy sequence by taking nested balls
-    --- then use completeness to get a limit point in the intersection
-    sorry
+    have exists_nested_balls := exists_nested_balls_sequence hUopen hUnempty ho hd
+    rcases exists_nested_balls with ⟨r_seq, x_seq, h_nested_balls⟩
 
+    have hSeqIsCauchy : ∀ ε > 0, ∃ N, ∀ n ≥ N, dist (x_seq n) (x_seq N) < ε := by
+      intro ε hε
+      rcases h_nested_balls with ⟨h_nested, h_rseq_bound⟩
 
+      -- find N such that r_seq N < ε/2
+      have exists_N : ∃ N, r_seq N < ε / 2 := by
+        -- since r_seq n ≤ 1/2^n, we can choose N large enough
+        -- use Nat.find (fun n => r_seq n < ε / 2)
+        sorry
+
+      rcases exists_N with ⟨N, h_rseq_N⟩
+      refine ⟨N, ?_⟩
+      intro n hn_ge_N
+
+      have hn_seq_in_N_ball :
+         Metric.closedBall (x_seq n) (r_seq n) ⊆ Metric.closedBall (x_seq N) (r_seq N) := by
+        -- use the nested balls property to show x_seq n is in the closed ball around x_seq N
+        induction n, hn_ge_N using Nat.le_induction with
+        | base =>
+          simp
+        | succ k kgtN hk =>
+          have ball_k_subset_closedBall_k : Metric.ball (x_seq k) (r_seq k) ∩ f k ⊆ Metric.closedBall (x_seq k) (r_seq k) := by
+            exact Set.Subset.trans (Set.inter_subset_left) Metric.ball_subset_closedBall
+          exact Set.Subset.trans (
+            Set.Subset.trans (h_nested.left k) ball_k_subset_closedBall_k
+            ) hk
+
+      have x_seq_n_in_N_ball : x_seq n ∈ Metric.closedBall (x_seq N) (r_seq N) := by
+        sorry
+        -- exact Set.mem_of_mem_of_subset (Metric.mem_closedBall_self (x_seq n)) hn_seq_in_N_ball
+      have x_n_dist_x_N_is_r_N :=
+        Metric.mem_closedBall.mp x_seq_n_in_N_ball
+
+      calc
+        dist (x_seq n) (x_seq N) ≤ r_seq N := x_n_dist_x_N_is_r_N
+        _ < ε / 2 := h_rseq_N
+        _ < ε := by linarith
+
+    -- now we have shown the sequence is Cauchy
+      -- use the nested balls property to show dist (x_seq n) (x_seq N) < ε
+
+    have hSeqLimit : ∃ x_lim : Y, Tendsto (fun n => x_seq n) atTop (𝓝 x_lim) := by
+      sorry
+
+    rcases hSeqLimit with ⟨x_lim, h_tendsto⟩
+    have x_lim_in_balls : ∀ (n : ℕ), x_lim ∈ Metric.closedBall (x_seq n) (r_seq n) := by
+      intro n
+      have x_k_in_ball_x_n : ∀ k ≥ n, x_seq k ∈ Metric.closedBall (x_seq n) (r_seq n) := by
+        intro k hk_ge_n
+        induction k, hk_ge_n using Nat.le_induction with
+        | base =>
+          exact Metric.mem_closedBall_self (le_of_lt ((h_nested_balls.right n).left))
+        | succ m mgt_n hm_ind =>
+          have r_seq_m_gt_zero := (h_nested_balls.right m).left
+          -- this is kinda easy but tedious
+          sorry
+
+      -- have h_closed := Metric.isClosed_ball (x := x_seq n) (ε := r_seq n)
+      have ball_seq_closed : IsSeqClosed (Metric.closedBall (x_seq n) (r_seq n)) := by
+        exact IsClosed.isSeqClosed (Metric.isClosed_closedBall (x := x_seq n) ( ε := r_seq n))
+
+      sorry
+    have x_lim_in_f_n : ∀ n, x_lim ∈ f n := by
+      sorry
+      -- show x_lim ∈ f n for each n
+
+    have x_lim_in_U : x_lim ∈ U := by
+      have h_lim_in_ball_0 : x_lim ∈ Metric.closedBall (x_seq 0) (r_seq 0) := by
+        exact x_lim_in_balls 0
+      have ball_0_subset_U : Metric.closedBall (x_seq 0) (r_seq 0) ⊆ U  := by
+        have ball_0_subset_U_cap_f_0 : Metric.closedBall (x_seq 0) (r_seq 0) ⊆ U ∩ f 0 := by
+          exact (h_nested_balls.left).right
+        simp at ball_0_subset_U_cap_f_0
+        exact ball_0_subset_U_cap_f_0.left
+      exact Set.mem_of_mem_of_subset h_lim_in_ball_0 ball_0_subset_U
+
+    have x_lim_in_inter : x_lim ∈ U ∩ ⋂ n, f n := by
+      simp_all
+    rw [Set.nonempty_def]
+    use x_lim
+
+/--
+The second form of the Baire Category Theorem:
+  In a complete metric space, the union of countably many
+  nowhere dense sets cannot be the whole space.
+-/
 theorem sum_sets_atleast_one_not_nowhere_dense {f : ℕ → Set Y} [Nonempty Y]
    (hUnion : ⋃ n, f n = univ) :
     ∃ n, ¬ IsNowhereDense (f n) := by
