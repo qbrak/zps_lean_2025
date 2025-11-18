@@ -104,7 +104,7 @@ lemma exist_open_ball_smaller_radius_subset {P : Set Y} {r : ℝ} (hr : 0 < r) (
 
 lemma exists_nested_balls_sequence {W: Set Y} {U: ℕ → Set Y}
 (hWopen : IsOpen W) (hWne : W.Nonempty) (hUnopen : ∀ n, IsOpen (U n)) (hUdense : ∀ n, Dense (U n)) :
-∃ (r_seq: ℕ → ℝ) (x_seq: ℕ → Y), (((∀ n, Metric.closedBall (x_seq (n+1)) (r_seq (n+1)) ⊆ Metric.ball (x_seq n) (r_seq n))
+∃ (r_seq: ℕ → ℝ) (x_seq: ℕ → Y), (((∀ n, Metric.closedBall (x_seq (n+1)) (r_seq (n+1)) ⊆ (Metric.ball (x_seq n) (r_seq n) ∩ U n))
 ∧ (Metric.closedBall (x_seq 0) (r_seq 0) ⊆ W ∩ U 0)) ∧ (∀ n, 0 < r_seq n ∧  r_seq n ≤ 1/2^n)) := by
 
   sorry
