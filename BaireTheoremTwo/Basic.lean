@@ -19,7 +19,7 @@ variable {X Y α B B1 : Type*} {ι : Sort*}
 section BaireTheoremTwo
 
 variable [TopologicalSpace X] [BaireSpace X]
-variable [MetricSpace Y] [CompleteSpace Y] [IsCompletelyMetrizableSpace X]
+variable [MetricSpace Y] [CompleteSpace Y] [IsCompletelyMetrizableSpace Y]
 --variable [MetricSpace Z]
 
 /--
