@@ -130,8 +130,17 @@ theorem complete_metric_has_baire_property {G : ℕ → Set X} (ho : ∀ n, IsOp
     -- find N such that r N < ε/2
     have exists_N : ∃ N, r N < ε / 2 := by
       -- since r n ≤ 1/2^n, we can choose N large enough
-      -- use Nat.find (fun n => r n < ε / 2)
-      sorry
+      -- apply Nat.find (fun n => r n < ε / 2)
+      -- Use the lemma that (1/2)^n can be made arbitrarily small
+
+      rcases exists_pow_lt_of_lt_one (half_pos hε) one_half_lt_one with ⟨N, hN⟩
+      use N
+      -- If we just skip these simps than what we get is a difference
+      -- between (1 / 2) ^ N and 1 / 2 ^ N
+      -- and with the simp-s we unify the form so that what we compare is the same
+      simp at hN
+      simp at h_r_bound
+      exact LT.lt.trans_le' hN (h_r_bound N).right
 
     rcases exists_N with ⟨N, h_r_N⟩
     refine ⟨N, ?_⟩
