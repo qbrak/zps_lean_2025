@@ -143,7 +143,8 @@ theorem complete_metric_has_baire_property {G : ℕ → Set X} (ho : ∀ n, IsOp
       exact LT.lt.trans_le' hN (h_r_bound N).right
 
     rcases exists_N with ⟨N, h_r_N⟩
-    refine ⟨N, ?_⟩
+    -- Instead of `refine ⟨N, ?_⟩` we can just do:
+    use N
     intro n hn_ge_N
 
     have hn_seq_in_N_ball :
