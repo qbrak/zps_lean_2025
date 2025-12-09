@@ -154,8 +154,8 @@ theorem complete_metric_has_baire_property {G : ℕ → Set X} (ho : ∀ n, IsOp
       | base =>
         simp
       | succ k kgtN hk =>
-        have ball_k_subset_closedBall_k : Metric.ball (x k) (r k) ∩ G k ⊆ Metric.closedBall (x k) (r k) := by
-          exact Set.Subset.trans (Set.inter_subset_left) Metric.ball_subset_closedBall
+        have ball_k_subset_closedBall_k : Metric.ball (x k) (r k) ∩ G k ⊆ Metric.closedBall (x k) (r k) :=
+          Set.Subset.trans (Set.inter_subset_left) Metric.ball_subset_closedBall
         exact Set.Subset.trans (
           Set.Subset.trans (h_nested.left k) ball_k_subset_closedBall_k
           ) hk
@@ -194,8 +194,8 @@ theorem complete_metric_has_baire_property {G : ℕ → Set X} (ho : ∀ n, IsOp
         sorry
 
     -- have h_closed := Metric.isClosed_ball (x := x n) (ε := r n)
-    have ball_seq_closed : IsSeqClosed (Metric.closedBall (x n) (r n)) := by
-      exact IsClosed.isSeqClosed (Metric.isClosed_closedBall (x := x n) ( ε := r n))
+    have ball_seq_closed : IsSeqClosed (Metric.closedBall (x n) (r n)) :=
+      IsClosed.isSeqClosed (Metric.isClosed_closedBall (x := x n) ( ε := r n))
 
     exact IsClosed.mem_of_tendsto
       (Metric.isClosed_closedBall (x := x n) (ε := r n))
@@ -210,11 +210,11 @@ theorem complete_metric_has_baire_property {G : ℕ → Set X} (ho : ∀ n, IsOp
     exact Set.mem_of_mem_of_subset (x_lim_in_balls (n+1)) (h_ball_np1_sub_G_n n)
 
   have x_lim_in_U : x_lim ∈ U := by
-    have h_lim_in_ball_0 : x_lim ∈ Metric.closedBall (x 0) (r 0) := by
-      exact x_lim_in_balls 0
+    have h_lim_in_ball_0 : x_lim ∈ Metric.closedBall (x 0) (r 0) :=
+      x_lim_in_balls 0
     have ball_0_subset_U : Metric.closedBall (x 0) (r 0) ⊆ U  := by
-      have ball_0_subset_U_cap_G_0 : Metric.closedBall (x 0) (r 0) ⊆ U ∩ G 0 := by
-        exact (h_nested_balls.left).right
+      have ball_0_subset_U_cap_G_0 : Metric.closedBall (x 0) (r 0) ⊆ U ∩ G 0 :=
+        (h_nested_balls.left).right
       simp at ball_0_subset_U_cap_G_0
       exact ball_0_subset_U_cap_G_0.left
     exact Set.mem_of_mem_of_subset h_lim_in_ball_0 ball_0_subset_U
