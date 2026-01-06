@@ -314,10 +314,6 @@ theorem complete_metric_has_baire_property {G : ℕ → Set X} (ho : ∀ n, IsOp
         -- 2. Konkluzja: Skoro x_{m+1} ∈ B_m, a B_m ⊆ B_n, to x_{m+1} ∈ B_n
         exact (ball_m_subset_ball_n m mgt_n) x_next_in_ball_m
 
-    -- have h_closed := Metric.isClosed_ball (x := x n) (ε := r n)
-    have ball_seq_closed : IsSeqClosed (Metric.closedBall (x n) (r n)) :=
-      IsClosed.isSeqClosed (Metric.isClosed_closedBall (x := x n) ( ε := r n))
-
     exact IsClosed.mem_of_tendsto
       (Metric.isClosed_closedBall (x := x n) (ε := r n))
       h_tendsto
