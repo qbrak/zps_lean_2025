@@ -299,9 +299,7 @@ theorem complete_metric_has_baire_property {G : ℕ → Set X} (ho : ∀ n, IsOp
       | base =>
         exact Metric.mem_closedBall_self (le_of_lt ((h_r_bound n).left))
       | succ m mgt_n hm_ind =>
-        have r_m_gt_zero := (h_r_bound m).left
-
-        -- 2. Teraz pokazujemy, że x_{m+1} leży w kuli m-tej
+        -- 1. Teraz pokazujemy, że x_{m+1} leży w kuli m-tej
         have x_next_in_ball_m : x (m + 1) ∈ Metric.closedBall (x m) (r m) := by
           -- Bierzemy własność zagnieżdżenia dla m: B_{m+1} ⊆ B_m
           have step := (h_nested m)
@@ -313,12 +311,12 @@ theorem complete_metric_has_baire_property {G : ℕ → Set X} (ho : ∀ n, IsOp
           apply (Subset.trans step (Subset.trans Set.inter_subset_left Metric.ball_subset_closedBall))
           exact center_in_self
 
-        -- 3. Konkluzja: Skoro x_{m+1} ∈ B_m, a B_m ⊆ B_n, to x_{m+1} ∈ B_n
+        -- 2. Konkluzja: Skoro x_{m+1} ∈ B_m, a B_m ⊆ B_n, to x_{m+1} ∈ B_n
         exact (ball_m_subset_ball_n m mgt_n) x_next_in_ball_m
 
     -- have h_closed := Metric.isClosed_ball (x := x n) (ε := r n)
-    have ball_seq_closed : IsSeqClosed (Metric.closedBall (x n) (r n)) := by
-      exact IsClosed.isSeqClosed (Metric.isClosed_closedBall (x := x n) ( ε := r n))
+    have ball_seq_closed : IsSeqClosed (Metric.closedBall (x n) (r n)) :=
+      IsClosed.isSeqClosed (Metric.isClosed_closedBall (x := x n) ( ε := r n))
 
     exact IsClosed.mem_of_tendsto
       (Metric.isClosed_closedBall (x := x n) (ε := r n))
